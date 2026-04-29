@@ -5,13 +5,14 @@ import RoleGuard from './components/RoleGuard.jsx'
 import { useAuth } from './context/useAuth.js'
 import DashboardPage from './pages/DashboardPage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
+import MyListingsPage from './pages/MyListingsPage.jsx'
 import NotFoundPage from './pages/NotFoundPage.jsx'
 import RegisterPage from './pages/RegisterPage.jsx'
 import UploadPage from './pages/UploadPage.jsx'
+import WishlistPage from './pages/WishlistPage.jsx'
 
 function HomeRedirect() {
   const { isAuthenticated } = useAuth()
-
   return <Navigate to={isAuthenticated ? '/dashboard' : '/login'} replace />
 }
 
@@ -27,6 +28,21 @@ function App() {
 
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<DashboardPage />} />
+
+            {/* ✅ Wishlist — no RoleGuard, all logged in users can access */}
+            <Route path="/wishlist" element={<WishlistPage />} />
+
+            {/* ✅ My Listings — broker and admin only */}
+            <Route
+              path="/my-listings"
+              element={
+                <RoleGuard allowedRoles={['BROKER', 'ADMIN']}>
+                  <MyListingsPage />
+                </RoleGuard>
+              }
+            />
+
+            {/* ✅ Upload — broker and admin only */}
             <Route
               path="/upload"
               element={

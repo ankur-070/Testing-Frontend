@@ -47,7 +47,6 @@ export function AuthProvider({ children }) {
     setUser(normalizedUser)
   }, [])
 
-  // Set global unauthorized handler
   useEffect(() => {
     setUnauthorizedHandler(() => {
       clearSession(false)
@@ -55,33 +54,47 @@ export function AuthProvider({ children }) {
     })
   }, [clearSession])
 
-  // Bootstrap — restore and verify session on page load
+  // ✅ Bootstrap — restore session on page load
   useEffect(() => {
     let isMounted = true
 
     async function bootstrapAuth() {
       const storedToken = getStoredToken()
 
+      // ✅ No token — not logged in, stop bootstrapping immediately
       if (!storedToken) {
-        setIsBootstrapping(false)
+        if (isMounted) setIsBootstrapping(false)
         return
       }
 
+      // ✅ Token expired — clear and stop
       if (isTokenExpired(storedToken)) {
-        clearSession(true)
-        setIsBootstrapping(false)
+        if (isMounted) {
+          clearSession(true)
+          setIsBootstrapping(false)
+        }
         return
       }
 
+      // ✅ Try to get fresh user from backend
+      // If it fails, still use stored user so app doesn't break
       try {
-        // ✅ Calls GET /api/users/me to get fresh user data including role
         const currentUser = await getCurrentUser()
         if (isMounted) {
           saveSession(storedToken, currentUser)
         }
       } catch {
-        if (isMounted) clearSession(false)
+        // ✅ Backend call failed — use stored user instead of clearing session
+        // This prevents logout on temporary network issues
+        const storedUser = getStoredUser()
+        if (isMounted && storedUser) {
+          setToken(storedToken)
+          setUser(storedUser)
+        } else if (isMounted) {
+          clearSession(false)
+        }
       } finally {
+        // ✅ Always stop bootstrapping no matter what
         if (isMounted) setIsBootstrapping(false)
       }
     }

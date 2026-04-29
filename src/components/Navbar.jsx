@@ -16,7 +16,7 @@ function Navbar() {
     <header className="border-b border-slate-200 bg-white/90 backdrop-blur">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
         <Link to="/" className="text-lg font-semibold text-slate-900">
-          Real Estate Portal
+         P R O P S
         </Link>
 
         <div className="flex flex-wrap items-center gap-2">

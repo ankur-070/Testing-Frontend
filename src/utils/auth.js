@@ -25,7 +25,7 @@ export function isTokenExpired(token) {
 
 export function normalizeRole(role) {
   if (!role) return null
-  return role.replace('ROLE_', '').toUpperCase()
+  return role.toString().replace('ROLE_', '').toUpperCase()
 }
 
 export function storeSession(token, user) {
